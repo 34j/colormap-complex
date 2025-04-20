@@ -1,0 +1,23 @@
+# Changes here will be overwritten by Copier
+_commit: 798dc24
+_src_path: gh:34j/pypackage-template
+add_me_as_contributor: false
+copyright_year: '2025'
+documentation: true
+email: 34j.95a2p@simplelogin.com
+full_name: 34j
+github_app_installation_ids: 31487150,37771054
+github_username: 34j
+has_cli: false
+initial_commit: false
+is_django_package: false
+open_source_license: MIT
+open_with_editor: true
+package_name: colormap_complex
+project_name: Colormap Complex
+project_short_description: Complex / 2d colormap
+project_slug: colormap-complex
+run_uv_sync: false
+setup_github: false
+setup_pre_commit: false
+

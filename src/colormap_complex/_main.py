@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Literal, TypeVar
+from typing import Any, Callable, Literal, TypeVar
 
 import colour
 import numpy as np
@@ -27,6 +27,14 @@ ALL_COLORMAPS: list[ColormapType] = [
     "prolch",
     "hsv",
     "ycbcr",
+    "bremm",
+    "cubediagonal",
+    "schumann",
+    "steiger",
+    "teulingfig2",
+    "ziegler",
+]
+_CACHED_COLORMAPS: list[ColormapType] = [
     "bremm",
     "cubediagonal",
     "schumann",
@@ -63,9 +71,6 @@ def interpnd(base: NDArray[TBase], *indices: NDArray[np.number]) -> NDArray[TBas
 
 
 def colormap(
-    x: NDArray[np.number],
-    y: NDArray[np.number],
-    /,
     *,
     type: Literal[
         "oklab",
@@ -84,7 +89,7 @@ def colormap(
     cut_outbound: bool = True,
     scale: bool = True,
     clip: bool = True,
-) -> NDArray[np.number]:
+) -> Callable[[NDArray[np.number], NDArray[np.number]], NDArray[np.number]]:
     """
     2D colormap function.
 
@@ -114,69 +119,79 @@ def colormap(
         dimension.
 
     """
-    if scale:
-        xmin = np.min(x)
-        xmax = np.max(x)
-        ymin = np.min(y)
-        ymax = np.max(y)
-        x = (x - xmin) / (xmax - xmin)
-        y = (y - ymin) / (ymax - ymin)
-    x, y = np.broadcast_arrays(x, y)
-    if type == "hsv":
-        srgb = colour.HSL_to_RGB(np.stack([x, np.ones_like(x), 0.3 + 0.6 * y], axis=-1))
-    elif type == "ycbcr":
-        srgb = colour.YCbCr_to_RGB(np.stack([np.ones_like(x) * 0.5, x, y], axis=-1))
-    elif type in ["oklab", "oklch", "prolab", "prolch"]:
-        if type == "oklab":
-            xyz = colour.Oklab_to_XYZ(
-                np.stack(
-                    [0.7 * np.ones_like(x), 0.1 * (2 * x - 1), 0.14 * (2 * y - 1)],
-                    axis=-1,
-                )
-            )
-        elif type == "oklch":
-            # too black -> invisible, too bright -> out of bounds
-            xyz = colour.Oklab_to_XYZ(
-                np.stack(
-                    [
-                        0.3 + 0.45 * y,
-                        0.1 * np.cos(2 * np.pi * x),
-                        0.1 * np.sin(2 * np.pi * x),
-                    ],
-                    axis=-1,
-                )
-            )
-        elif type == "prolab":
-            xyz = colour.ProLab_to_XYZ(
-                np.stack(
-                    [75 * np.ones_like(x), 15 * (2 * x - 1), 20 * (2 * y - 1)], axis=-1
-                )
-            )
-        elif type == "prolch":
-            # too black -> invisible, too bright -> out of bounds
-            xyz = colour.ProLab_to_XYZ(
-                np.stack(
-                    [
-                        20 + 70 * y,
-                        17 * np.cos(2 * np.pi * x),
-                        17 * np.sin(2 * np.pi * x),
-                    ],
-                    axis=-1,
-                )
-            )
-        srgb = colour.XYZ_to_sRGB(xyz)
-        if cut_outbound:
-            srgb[(np.abs(srgb) > 1).any(axis=-1)] = 0
-    else:
+    if type not in ALL_COLORMAPS:
+        raise ValueError(f"Unknown colormap: {type}. Available colormaps: {ALL_COLORMAPS}")
+    if type in _CACHED_COLORMAPS:
         file = Path(__file__).parent / "data" / f"{type}.npy"
         if not file.exists():
             raise ValueError(f"Unknown colormap: {type}")
         colormap = np.load(file) / 255
-        return interpnd(
-            colormap,
-            x * (colormap.shape[0] - 1),
-            y * (colormap.shape[1] - 1),
-        )
-    if clip:
-        srgb = np.clip(srgb, 0, 1)
-    return srgb
+
+    def inner(x: NDArray[np.number], y: NDArray[np.number]) -> NDArray[np.number]:
+        if scale:
+            xmin = np.min(x)
+            xmax = np.max(x)
+            ymin = np.min(y)
+            ymax = np.max(y)
+            x = (x - xmin) / (xmax - xmin)
+            y = (y - ymin) / (ymax - ymin)
+        x, y = np.broadcast_arrays(x, y)
+        if type == "hsv":
+            srgb = colour.HSL_to_RGB(np.stack([x, np.ones_like(x), 0.3 + 0.6 * y], axis=-1))
+        elif type == "ycbcr":
+            srgb = colour.YCbCr_to_RGB(np.stack([np.ones_like(x) * 0.5, x, y], axis=-1))
+        elif type in ["oklab", "oklch", "prolab", "prolch"]:
+            if type == "oklab":
+                xyz = colour.Oklab_to_XYZ(
+                    np.stack(
+                        [0.7 * np.ones_like(x), 0.1 * (2 * x - 1), 0.14 * (2 * y - 1)],
+                        axis=-1,
+                    )
+                )
+            elif type == "oklch":
+                # too black -> invisible, too bright -> out of bounds
+                xyz = colour.Oklab_to_XYZ(
+                    np.stack(
+                        [
+                            0.3 + 0.45 * y,
+                            0.1 * np.cos(2 * np.pi * x),
+                            0.1 * np.sin(2 * np.pi * x),
+                        ],
+                        axis=-1,
+                    )
+                )
+            elif type == "prolab":
+                xyz = colour.ProLab_to_XYZ(
+                    np.stack(
+                        [75 * np.ones_like(x), 15 * (2 * x - 1), 20 * (2 * y - 1)],
+                        axis=-1,
+                    )
+                )
+            elif type == "prolch":
+                # too black -> invisible, too bright -> out of bounds
+                xyz = colour.ProLab_to_XYZ(
+                    np.stack(
+                        [
+                            20 + 70 * y,
+                            17 * np.cos(2 * np.pi * x),
+                            17 * np.sin(2 * np.pi * x),
+                        ],
+                        axis=-1,
+                    )
+                )
+            srgb = colour.XYZ_to_sRGB(xyz)
+            if cut_outbound:
+                srgb[(np.abs(srgb) > 1).any(axis=-1)] = 0
+        elif type in _CACHED_COLORMAPS:
+            return interpnd(
+                colormap,
+                x * (colormap.shape[0] - 1),
+                y * (colormap.shape[1] - 1),
+            )
+        else:
+            raise AssertionError()
+        if clip:
+            srgb = np.clip(srgb, 0, 1)
+        return srgb
+
+    return inner

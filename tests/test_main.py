@@ -37,7 +37,7 @@ def setup_cache() -> None:
 def test_colormap(type: ColormapType) -> None:
     lin = np.linspace(0, 1, 100)
     x, y = np.meshgrid(lin, lin)
-    c = colormap(x, y, type=type)
+    c = colormap(type=type)(x, y)
     fig, ax = plt.subplots()
     ax.imshow(c, extent=(0, 1, 0, 1), origin="lower")
     ax.set_title(type)
@@ -53,7 +53,7 @@ def test_colormap_all() -> None:
     fig, ax = plt.subplots(h, w, figsize=(2 * w, 2 * h), layout="constrained")
     ax = ax.flatten()
     for i, type in enumerate(ALL_COLORMAPS):
-        c = colormap(x, y, type=type)
+        c = colormap(type=type)(x, y)
         ax[i].imshow(c, extent=(0, 1, 0, 1), origin="lower")
         ax[i].set_title(type)
     for i in range(len(ALL_COLORMAPS), len(ax)):
@@ -117,13 +117,16 @@ def test_complex_function(
         angle = np.angle(z)
         if magnitude_growth:
             r = np.fmod(np.log(r), 1)
-        c = colormap(angle / (2 * np.pi), r, type="oklch")
+        c = colormap(type="oklch")(
+            angle / (2 * np.pi),
+            r,
+        )
         ax[2].set_title("f(z) (oklch)")
         cba = fig.colorbar(
             ScalarMappable(
                 norm=Normalize(angle.min(), angle.max()),
                 cmap=ListedColormap(
-                    colormap(np.linspace(0, 1, 256), 0.5, type="oklch", scale=False)
+                    colormap(type="oklch", scale=False)(np.linspace(0, 1, 256), np.array(0.5))
                 ),
             ),
             ax=ax[2],
@@ -132,11 +135,12 @@ def test_complex_function(
         cba.set_ticklabels([r"$-\pi$", r"$0$", r"$\pi$"])
         cbr = fig.colorbar(
             ScalarMappable(
-                norm=Normalize(0, 1)
-                if magnitude_growth
-                else Normalize(np.min(r), np.max(r)),
+                norm=Normalize(0, 1) if magnitude_growth else Normalize(np.min(r), np.max(r)),
                 cmap=ListedColormap(
-                    colormap(0.5, np.linspace(0, 1, 256), type="oklch", scale=False)
+                    colormap(type="oklch", scale=False)(
+                        np.array(0.5),
+                        np.linspace(0, 1, 256),
+                    )
                 ),
             ),
             ax=ax[2],
@@ -145,7 +149,7 @@ def test_complex_function(
             cbr.set_ticks([0, 0.5, 1])
             cbr.set_ticklabels([r"$1$", r"$e^{\frac{1}{2}}$", r"$e$"])
     else:
-        c = colormap(z.real, z.imag, type="oklab")
+        c = colormap(type="oklab")(z.real, z.imag)
         ax[2].set_title("f(z) (oklab)")
     ax[2].imshow(c, extent=(-1, 1, -1, 1), origin="lower")
     for ax_ in ax:

@@ -44,7 +44,40 @@ Complex / 2d colormap
 
 Install this via pip (or your favourite package manager):
 
-`pip install colormap-complex`
+```shell
+pip install colormap-complex
+```
+
+## Usage
+
+```python
+from colormap_complex import colormap
+import numpy as np
+
+lin = np.linspace(-1, 1, 100)
+x, y = np.meshgrid(lin, lin)
+z = x + 1j * y
+c = colormap(z.real, z.imag, type="oklab", scale=True)
+plt.imshow(c, extent=(-1, 1, -1, 1), origin='lower')
+```
+
+### All colormaps
+
+![colormaps](https://raw.githubusercontent.com/34j/colormap-complex/main/colormap-all.jpg)
+
+### Examples
+
+![z-3](https://raw.githubusercontent.com/34j/colormap-complex/main/complex-function-z-3.jpg)
+![Bessel](https://raw.githubusercontent.com/34j/colormap-complex/main/complex-function-jv-0-z.jpg)
+![Erf](https://raw.githubusercontent.com/34j/colormap-complex/main/complex-function-erf-z.jpg)
+
+### Description
+
+- `"bremm", "cubediagonal", "schumann", "steiger", "teulingfig2", "ziegler"` colormaps are collected from [spinthil/pycolormap-2d](https://github.com/spinthil/pycolormap-2d) which is based on:
+  > M. Steiger, J. Bernard, S. Thum, S. Mittelstädt, M. Hutter, D. A. Keim, and J. Kohlhammer, “Explorative Analysis of 2D Color Maps,” in International Conferences in Central Europe on Computer Graphics, Visualization and Computer Vision, 2015, vol. 23, pp. 151–160.
+- Other colormaps are created by the author.
+- `"oklab", "prolab"` are perceptually uniform (lightness) colormaps.
+- `"oklch", "prolch"` are perceptually uniform (chroma) colormaps. X axis corresponds to Hue and Y axis to Lightness.
 
 ## Contributors ✨
 

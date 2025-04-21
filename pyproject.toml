@@ -7,7 +7,7 @@ name = "colormap-complex"
 version = "0.0.0"
 description = "Complex / 2d colormap"
 readme = "README.md"
-license = { text = "MIT" }
+license = { text = "Apache-2.0" }
 authors = [
   { name = "34j", email = "34j.95a2p@simplelogin.com" },
 ]
@@ -26,6 +26,7 @@ classifiers = [
 ]
 
 dependencies = [
+    "colour-science>=0.4.4",
 ]
 urls."Bug Tracker" = "https://github.com/34j/colormap-complex/issues"
 urls.Changelog = "https://github.com/34j/colormap-complex/blob/main/CHANGELOG.md"
@@ -36,6 +37,9 @@ urls.repository = "https://github.com/34j/colormap-complex"
 dev = [
   "pytest>=8,<9",
   "pytest-cov>=6,<7",
+  "matplotlib>=3.9.4",
+  "scipy>=1.13.1",
+  "python-slugify>=8.0.4",
 ]
 docs = [
   "furo>=2023.5.20; python_version>='3.11'",

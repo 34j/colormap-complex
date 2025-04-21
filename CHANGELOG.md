@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.2 (2025-04-21)
+
+### Performance improvements
+
+- Cache colormap (#7) ([`7b24534`](https://github.com/34j/colormap-complex/commit/7b24534315fcba852d905fd2a4813e75258e91f7))
+
 ## v0.1.1 (2025-04-21)
 
 ### Bug fixes

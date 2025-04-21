@@ -46,6 +46,29 @@ Install this via pip (or your favourite package manager):
 
 `pip install colormap-complex`
 
+## Usage
+
+```python
+from colormap_complex import colormap
+import numpy as np
+
+lin = np.linspace(-1, 1, 100)
+x, y = np.meshgrid(lin, lin)
+z = x + 1j * y
+c = colormap(z.real, z.imag, type="oklab", scale=True)
+plt.imshow(c, extent=(-1, 1, -1, 1), origin='lower')
+```
+
+### All colormaps
+
+![colormaps](https://raw.githubusercontent.com/34j/colormap-complex/main/colormap-all.jpg)
+
+### Examples
+
+![z-3](https://raw.githubusercontent.com/34j/colormap-complex/main/complex-function-z-3.jpg)
+![Bessel](https://raw.githubusercontent.com/34j/colormap-complex/main/complex-function-jv-0-z.jpg)
+![Erf](https://raw.githubusercontent.com/34j/colormap-complex/main/complex-function-erf-z.jpg)
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):

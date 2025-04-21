@@ -49,6 +49,12 @@ docs = [
   "sphinx-autobuild>=2024,<2025; python_version>='3.11'",
 ]
 
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+colormap-complex = ["**/*.npy"]
+
 [tool.ruff]
 line-length = 100
 lint.select = [

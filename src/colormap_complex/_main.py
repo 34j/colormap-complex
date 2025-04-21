@@ -124,7 +124,7 @@ def colormap(
     if type in _CACHED_COLORMAPS:
         file = Path(__file__).parent / "data" / f"{type}.npy"
         if not file.exists():
-            raise ValueError(f"Unknown colormap: {type}")
+            raise FileNotFoundError("Colormap file not found.")
         colormap = np.load(file) / 255
 
     def inner(x: NDArray[np.number], y: NDArray[np.number]) -> NDArray[np.number]:

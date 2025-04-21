@@ -50,7 +50,7 @@ docs = [
 ]
 
 [tool.ruff]
-line-length = 88
+line-length = 100
 lint.select = [
   "B",   # flake8-bugbear
   "D",   # flake8-docstrings

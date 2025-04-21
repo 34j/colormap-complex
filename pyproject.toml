@@ -53,7 +53,7 @@ docs = [
 where = ["src"]
 
 [tool.setuptools.package-data]
-colormap-complex = ["**/*.npy"]
+colormap_complex = ["**/*.npy"]
 
 [tool.ruff]
 line-length = 100

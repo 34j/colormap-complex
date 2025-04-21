@@ -4,7 +4,7 @@ requires = [ "setuptools" ]
 
 [project]
 name = "colormap-complex"
-version = "0.1.1"
+version = "0.1.2"
 description = "Complex / 2d colormap / Domain coloring for matplotlib etc."
 readme = "README.md"
 license = { text = "Apache-2.0" }

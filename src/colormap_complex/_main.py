@@ -83,6 +83,7 @@ def colormap(
     ] = "bremm",
     cut_outbound: bool = True,
     scale: bool = True,
+    clip: bool = True,
 ) -> NDArray[np.number]:
     """
     2D colormap function.
@@ -101,6 +102,8 @@ def colormap(
         for the sRGB color space.
     scale : bool
         Whether to scale the input to the range [0, 1].
+    clip : bool
+        Whether to clip the output to the range [0, 1].
 
     Returns
     -------
@@ -118,6 +121,7 @@ def colormap(
         ymax = np.max(y)
         x = (x - xmin) / (xmax - xmin)
         y = (y - ymin) / (ymax - ymin)
+    x, y = np.broadcast_arrays(x, y)
     if type == "hsv":
         srgb = colour.HSL_to_RGB(np.stack([x, np.ones_like(x), 0.3 + 0.6 * y], axis=-1))
     elif type == "ycbcr":
@@ -173,4 +177,6 @@ def colormap(
             x * (colormap.shape[0] - 1),
             y * (colormap.shape[1] - 1),
         )
+    if clip:
+        srgb = np.clip(srgb, 0, 1)
     return srgb

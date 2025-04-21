@@ -5,7 +5,7 @@ requires = [ "setuptools" ]
 [project]
 name = "colormap-complex"
 version = "0.1.0"
-description = "Complex / 2d colormap"
+description = "Complex / 2d colormap / Domain coloring for matplotlib etc."
 readme = "README.md"
 license = { text = "Apache-2.0" }
 authors = [
@@ -27,6 +27,7 @@ classifiers = [
 
 dependencies = [
     "colour-science>=0.4.4",
+    "pytest-xdist>=3.6.1",
 ]
 urls."Bug Tracker" = "https://github.com/34j/colormap-complex/issues"
 urls.Changelog = "https://github.com/34j/colormap-complex/blob/main/CHANGELOG.md"

@@ -5,6 +5,8 @@ from typing import Any, Callable
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+from matplotlib.cm import ScalarMappable
+from matplotlib.colors import ListedColormap, Normalize
 from scipy.special import (
     airy,
     digamma,
@@ -20,7 +22,7 @@ from scipy.special import (
 )
 from slugify import slugify
 
-from colormap_complex._main import ALL_COLORMAPS, ColormapType, colormap
+from colormap_complex import ALL_COLORMAPS, ColormapType, colormap
 
 CI = environ.get("CI", "false").lower() == "true"
 CACHE_PATH = Path(__file__).parent / ".cache"
@@ -77,31 +79,87 @@ def test_colormap_all() -> None:
         ("digamma(z)", lambda z: digamma(z)),
         ("erf(z)", lambda z: erf(z)),
         ("FresnelS(z)", lambda z: fresnel(z)[0]),
+        ("sqrt(1-1/z^2+z^3)", lambda z: np.sqrt(1 - 1 / z**2 + z**3)),
+        ("z^(2/3+i)", lambda z: z ** (2 / 3 + 1j)),
     ],
+)
+@pytest.mark.parametrize(
+    "cylindrical,magnitude_growth", [(False, False), (True, False), (True, True)]
 )
 def test_complex_function(
     name: ColormapType,
     f: Callable[[Any], Any],
+    cylindrical: bool,
+    magnitude_growth: bool,
 ) -> None:
-    fig, ax = plt.subplots(1, 3, figsize=(15, 5), layout="constrained")
+    fig, ax = plt.subplots(1, 3, figsize=(12, 3.6), layout="constrained")
     lin = np.linspace(-1, 1, 100)
     x, y = np.meshgrid(lin, lin)
     z = f(x + 1j * y)
-    cf0 = ax[0].pcolormesh(x, y, z.real, shading="auto")
-    ax[0].set_title("Re f(z)")
-    ax[0].set_xlabel("Re z")
-    ax[0].set_ylabel("Im z")
+    if cylindrical:
+        cf0 = ax[0].pcolormesh(x, y, np.abs(z), shading="auto")
+        ax[0].set_title("|f(z)|")
+        cf1 = ax[1].pcolormesh(x, y, np.angle(z), shading="auto", cmap="twilight")
+        ax[1].set_title("arg f(z)")
+    else:
+        cf0 = ax[0].pcolormesh(x, y, z.real, shading="auto")
+        ax[0].set_title("Re f(z)")
+        cf1 = ax[1].pcolormesh(x, y, z.imag, shading="auto")
+        ax[1].set_title("Im f(z)")
     fig.colorbar(cf0, ax=ax[0])
-    cf1 = ax[1].pcolormesh(x, y, z.imag, shading="auto")
-    ax[1].set_title("Im f(z)")
-    ax[1].set_xlabel("Re z")
-    ax[1].set_ylabel("Im z")
     fig.colorbar(cf1, ax=ax[1])
+    ax[0].set_aspect("equal")
+    ax[1].set_aspect("equal")
     # both part
     ax[2].set_title("f(z)")
-    c = colormap(z.real, z.imag, type="ziegler")
+    if cylindrical:
+        r = np.abs(z)
+        angle = np.angle(z)
+        if magnitude_growth:
+            r = np.fmod(np.log(r), 1)
+        c = colormap(angle / (2 * np.pi), r, type="oklch")
+        ax[2].set_title("f(z) (oklch)")
+        cba = fig.colorbar(
+            ScalarMappable(
+                norm=Normalize(angle.min(), angle.max()),
+                cmap=ListedColormap(
+                    colormap(np.linspace(0, 1, 256), 0.5, type="oklch", scale=False)
+                ),
+            ),
+            ax=ax[2],
+        )
+        cba.set_ticks([-np.pi, 0, np.pi])
+        cba.set_ticklabels([r"$-\pi$", r"$0$", r"$\pi$"])
+        cbr = fig.colorbar(
+            ScalarMappable(
+                norm=Normalize(0, 1)
+                if magnitude_growth
+                else Normalize(np.min(r), np.max(r)),
+                cmap=ListedColormap(
+                    colormap(0.5, np.linspace(0, 1, 256), type="oklch", scale=False)
+                ),
+            ),
+            ax=ax[2],
+        )
+        if magnitude_growth:
+            cbr.set_ticks([0, 0.5, 1])
+            cbr.set_ticklabels([r"$1$", r"$e^{\frac{1}{2}}$", r"$e$"])
+    else:
+        c = colormap(z.real, z.imag, type="oklab")
+        ax[2].set_title("f(z) (oklab)")
     ax[2].imshow(c, extent=(-1, 1, -1, 1), origin="lower")
-    ax[2].set_xlabel("Re z")
-    ax[2].set_ylabel("Im z")
+    for ax_ in ax:
+        ax_.set_xlabel("Re z")
+        ax_.set_ylabel("Im z")
     fig.suptitle(f"Complex function: {name}")
-    fig.savefig(CACHE_PATH / f"complex-function-{slugify(name)}.jpg")
+    fig.savefig(
+        CACHE_PATH
+        / (
+            f"complex-function-{slugify(name)}"
+            + ("-cyl" if cylindrical else "")
+            + ("-magnitude" if magnitude_growth else "")
+            + ".jpg"
+        ),
+        dpi=200,
+    )
+    plt.close(fig)

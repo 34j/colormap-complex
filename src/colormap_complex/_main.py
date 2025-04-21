@@ -120,9 +120,7 @@ def colormap(
 
     """
     if type not in ALL_COLORMAPS:
-        raise ValueError(
-            f"Unknown colormap: {type}. Available colormaps: {ALL_COLORMAPS}"
-        )
+        raise ValueError(f"Unknown colormap: {type}. Available colormaps: {ALL_COLORMAPS}")
     if type in _CACHED_COLORMAPS:
         file = Path(__file__).parent / "data" / f"{type}.npy"
         if not file.exists():
@@ -139,9 +137,7 @@ def colormap(
             y = (y - ymin) / (ymax - ymin)
         x, y = np.broadcast_arrays(x, y)
         if type == "hsv":
-            srgb = colour.HSL_to_RGB(
-                np.stack([x, np.ones_like(x), 0.3 + 0.6 * y], axis=-1)
-            )
+            srgb = colour.HSL_to_RGB(np.stack([x, np.ones_like(x), 0.3 + 0.6 * y], axis=-1))
         elif type == "ycbcr":
             srgb = colour.YCbCr_to_RGB(np.stack([np.ones_like(x) * 0.5, x, y], axis=-1))
         elif type in ["oklab", "oklch", "prolab", "prolch"]:

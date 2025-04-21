@@ -126,9 +126,7 @@ def test_complex_function(
             ScalarMappable(
                 norm=Normalize(angle.min(), angle.max()),
                 cmap=ListedColormap(
-                    colormap(type="oklch", scale=False)(
-                        np.linspace(0, 1, 256), np.array(0.5)
-                    )
+                    colormap(type="oklch", scale=False)(np.linspace(0, 1, 256), np.array(0.5))
                 ),
             ),
             ax=ax[2],
@@ -137,9 +135,7 @@ def test_complex_function(
         cba.set_ticklabels([r"$-\pi$", r"$0$", r"$\pi$"])
         cbr = fig.colorbar(
             ScalarMappable(
-                norm=Normalize(0, 1)
-                if magnitude_growth
-                else Normalize(np.min(r), np.max(r)),
+                norm=Normalize(0, 1) if magnitude_growth else Normalize(np.min(r), np.max(r)),
                 cmap=ListedColormap(
                     colormap(type="oklch", scale=False)(
                         np.array(0.5),

@@ -79,6 +79,10 @@ plt.imshow(c, extent=(-1, 1, -1, 1), origin='lower')
 - `"oklab", "prolab"` are perceptually uniform (lightness) colormaps.
 - `"oklch", "prolch"` are perceptually uniform (chroma) colormaps. X axis corresponds to Hue and Y axis to Lightness.
 
+## Alternatives
+
+- [nschloe/cplot: :rainbow: Plot complex functions](https://github.com/nschloe/cplot/tree/main)
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):

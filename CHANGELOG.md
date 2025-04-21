@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.1.3 (2025-04-21)
+
+### Bug fixes
+
+- Fix .npy files not included (#8) ([`63c012e`](https://github.com/34j/colormap-complex/commit/63c012e3439418b3f50fa9686992e7bbc8ca55f8))
+
 ## v0.1.2 (2025-04-21)
 
 ### Performance improvements

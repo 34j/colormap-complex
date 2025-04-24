@@ -11,7 +11,7 @@ license = { text = "Apache-2.0" }
 authors = [
   { name = "34j", email = "34j.95a2p@simplelogin.com" },
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",
   "Intended Audience :: Developers",
@@ -38,7 +38,7 @@ urls.repository = "https://github.com/34j/colormap-complex"
 dev = [
   "pytest>=8,<9",
   "pytest-cov>=6,<7",
-  "matplotlib>=3.9.4",
+  "matplotlib>=3.10.1",
   "scipy>=1.13.1",
   "python-slugify>=8.0.4",
 ]

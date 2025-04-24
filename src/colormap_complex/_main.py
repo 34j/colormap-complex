@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Callable, Literal, TypeVar
+from typing import Any, Literal, Protocol, TypeVar
 
 import colour
 import numpy as np
@@ -70,6 +70,42 @@ def interpnd(base: NDArray[TBase], *indices: NDArray[np.number]) -> NDArray[TBas
     return base[indices_0] * (1 - indices_p) + base[indices_1] * indices_p
 
 
+class Colormap(Protocol):
+    """Colormap protocol."""
+
+    __name__: str
+
+    def __call__(
+        self,
+        x: NDArray[np.number],
+        y: NDArray[np.number],
+        /,
+        *,
+        scale: bool = False,
+    ) -> NDArray[np.number]:
+        """
+        Colormap function.
+
+        Parameters
+        ----------
+        x : NDArray[np.number]
+            Array of shape (...,)
+        y : NDArray[np.number]
+            Array of shape (...,)
+        scale : bool
+            Whether to scale the input to the range [0, 1].
+
+        Returns
+        -------
+        NDArray[np.number]
+            Colormap of shape (..., 3).
+            The colormap is in the range [0, 1].
+            If colormap is cyclic, x axis corresponds to the cyclic
+            dimension.
+
+        """
+
+
 def colormap(
     *,
     type: Literal[
@@ -87,36 +123,26 @@ def colormap(
         "ziegler",
     ] = "bremm",
     cut_outbound: bool = True,
-    scale: bool = True,
     clip: bool = True,
-) -> Callable[[NDArray[np.number], NDArray[np.number]], NDArray[np.number]]:
+) -> Colormap:
     """
     2D colormap function.
 
     Parameters
     ----------
-    x : NDArray[np.number]
-        Array of shape (...,)
-    y : NDArray[np.number]
-        Array of shape (...,)
     type : Literal['oklab', 'oklch', 'prolab', 'prolch', 'hsv', 'ycbcr',
         'bremm', 'cubediagonal', 'schumann', 'steiger', 'teulingfig2', 'ziegler']
         Type of colormap.
     cut_outbound : bool
         If using CIE XYZ, cut colors that are out of bounds
         for the sRGB color space.
-    scale : bool
-        Whether to scale the input to the range [0, 1].
     clip : bool
         Whether to clip the output to the range [0, 1].
 
     Returns
     -------
-    NDArray[np.number]
-        Colormap of shape (..., 3).
-        The colormap is in the range [0, 1].
-        If colormap is cyclic, x axis corresponds to the cyclic
-        dimension.
+    Colrmap
+        Colormap function.
 
     """
     if type not in ALL_COLORMAPS:
@@ -126,8 +152,11 @@ def colormap(
         if not file.exists():
             raise FileNotFoundError("Colormap file not found.")
         colormap = np.load(file) / 255
+        # 512 x 512 x 3
 
-    def inner(x: NDArray[np.number], y: NDArray[np.number]) -> NDArray[np.number]:
+    def inner(
+        x: NDArray[np.number], y: NDArray[np.number], /, *, scale: bool = False
+    ) -> NDArray[np.number]:
         if scale:
             xmin = np.min(x)
             xmax = np.max(x)
@@ -194,4 +223,6 @@ def colormap(
             srgb = np.clip(srgb, 0, 1)
         return srgb
 
+    inner.__name__ = type
+    inner.__doc__ = f"Colormap function of type {type}."
     return inner

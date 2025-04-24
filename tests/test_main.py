@@ -1,12 +1,13 @@
+from collections.abc import Callable
 from os import environ
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from matplotlib.cm import ScalarMappable
-from matplotlib.colors import ListedColormap, Normalize
+from matplotlib.colors import Normalize
 from scipy.special import (
     airy,
     digamma,
@@ -23,6 +24,7 @@ from scipy.special import (
 from slugify import slugify
 
 from colormap_complex import ALL_COLORMAPS, ColormapType, colormap
+from colormap_complex.matplotlib import get_mpl_1d_colormap
 
 CI = environ.get("CI", "false").lower() == "true"
 CACHE_PATH = Path(__file__).parent / ".cache"
@@ -117,17 +119,12 @@ def test_complex_function(
         angle = np.angle(z)
         if magnitude_growth:
             r = np.fmod(np.log(r), 1)
-        c = colormap(type="oklch")(
-            angle / (2 * np.pi),
-            r,
-        )
+        cmap = colormap(type="oklch")
+        c = cmap(angle / (2 * np.pi), r, scale=True)
         ax[2].set_title("f(z) (oklch)")
         cba = fig.colorbar(
             ScalarMappable(
-                norm=Normalize(angle.min(), angle.max()),
-                cmap=ListedColormap(
-                    colormap(type="oklch", scale=False)(np.linspace(0, 1, 256), np.array(0.5))
-                ),
+                norm=Normalize(angle.min(), angle.max()), cmap=get_mpl_1d_colormap(cmap, 0.5)
             ),
             ax=ax[2],
         )
@@ -136,12 +133,7 @@ def test_complex_function(
         cbr = fig.colorbar(
             ScalarMappable(
                 norm=Normalize(0, 1) if magnitude_growth else Normalize(np.min(r), np.max(r)),
-                cmap=ListedColormap(
-                    colormap(type="oklch", scale=False)(
-                        np.array(0.5),
-                        np.linspace(0, 1, 256),
-                    )
-                ),
+                cmap=get_mpl_1d_colormap(cmap, 0.5, axis=1),
             ),
             ax=ax[2],
         )
@@ -149,7 +141,7 @@ def test_complex_function(
             cbr.set_ticks([0, 0.5, 1])
             cbr.set_ticklabels([r"$1$", r"$e^{\frac{1}{2}}$", r"$e$"])
     else:
-        c = colormap(type="oklab")(z.real, z.imag)
+        c = colormap(type="oklab")(z.real, z.imag, scale=True)
         ax[2].set_title("f(z) (oklab)")
     ax[2].imshow(c, extent=(-1, 1, -1, 1), origin="lower")
     for ax_ in ax:

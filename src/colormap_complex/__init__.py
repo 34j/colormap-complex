@@ -1,4 +1,4 @@
-__version__ = "0.1.3"
+__version__ = "0.2.0"
 
 from ._main import ALL_COLORMAPS, ColormapType, colormap, interpnd
 

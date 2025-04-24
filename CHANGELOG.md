@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.0 (2025-04-24)
+
+### Features
+
+- Add matplotlib api (#12) ([`e92c36c`](https://github.com/34j/colormap-complex/commit/e92c36cc7a6388b47116beb3736e8933b636cfbe))
+
 ## v0.1.3 (2025-04-21)
 
 ### Bug fixes

@@ -37,7 +37,7 @@ urls.repository = "https://github.com/34j/colormap-complex"
 [dependency-groups]
 dev = [
   "pytest>=8,<9",
-  "pytest-cov>=6,<7",
+  "pytest-cov>=7,<8",
   "matplotlib>=3.10.1",
   "scipy>=1.13.1",
   "python-slugify>=8.0.4",

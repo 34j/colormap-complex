@@ -58,7 +58,7 @@ lin = np.linspace(-1, 1, 100)
 x, y = np.meshgrid(lin, lin)
 z = x + 1j * y
 c = colormap(type="oklab")(z.real, z.imag, scale=True)
-plt.imshow(c, extent=(-1, 1, -1, 1), origin='lower')
+plt.imshow(c, extent=(-1, 1, -1, 1), origin="lower")
 ```
 
 ### All colormaps

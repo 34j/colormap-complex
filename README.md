@@ -18,8 +18,8 @@
   <a href="https://github.com/astral-sh/ruff">
     <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff">
   </a>
-  <a href="https://github.com/j178/prek">
-    <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/j178/prek/master/docs/assets/badge-v0.json" alt="prek">
+  <a href="https://github.com/pre-commit/pre-commit">
+    <img src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white&style=flat-square" alt="pre-commit">
   </a>
 </p>
 <p align="center">
@@ -48,6 +48,19 @@ Install this via pip (or your favourite package manager):
 pip install colormap-complex
 ```
 
+## Usage
+
+```python
+from colormap_complex import colormap
+import numpy as np
+
+lin = np.linspace(-1, 1, 100)
+x, y = np.meshgrid(lin, lin)
+z = x + 1j * y
+c = colormap(type="oklab")(z.real, z.imag, scale=True)
+plt.imshow(c, extent=(-1, 1, -1, 1), origin='lower')
+```
+
 ### All colormaps
 
 ![colormaps](https://raw.githubusercontent.com/34j/colormap-complex/main/colormap-all.jpg)
@@ -69,3 +82,25 @@ pip install colormap-complex
 ## Alternatives
 
 - [nschloe/cplot: :rainbow: Plot complex functions](https://github.com/nschloe/cplot/tree/main)
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- prettier-ignore-start -->
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- markdownlint-disable -->
+<!-- markdownlint-enable -->
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+<!-- prettier-ignore-end -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+## Credits
+
+[![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-inverted-border-orange.json)](https://github.com/copier-org/copier)
+
+This package was created with
+[Copier](https://copier.readthedocs.io/) and the
+[browniebroke/pypackage-template](https://github.com/browniebroke/pypackage-template)
+project template.

@@ -8,9 +8,7 @@ version = "0.2.0"
 description = "Complex / 2d colormap / Domain coloring for matplotlib etc."
 readme = "README.md"
 license = "Apache-2.0"
-authors = [
-  { name = "34j", email = "34j.95a2p@simplelogin.com" },
-]
+authors = [ { name = "34j" } ]
 requires-python = ">=3.12"
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",

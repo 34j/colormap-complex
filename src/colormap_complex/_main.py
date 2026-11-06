@@ -58,7 +58,7 @@ def interpnd(base: NDArray[TBase], *indices: NDArray[np.number]) -> NDArray[TBas
     Returns
     -------
     NDArray[TBase]
-        Interpolated array of shape (*I, B.shape[len(I):]).
+        Interpolated array with the index shape followed by the remaining base dimensions.
 
     """
     indices_0 = tuple(np.floor(indices_i).astype(np.int32) for indices_i in indices)

@@ -218,7 +218,7 @@ def colormap(
                 y * (colormap.shape[1] - 1),
             )
         else:
-            raise AssertionError()
+            raise AssertionError
         if clip:
             srgb = np.clip(srgb, 0, 1)
         return srgb

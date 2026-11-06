@@ -11,108 +11,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
-        with:
-          python-version: 3.x
-      - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
-
-  # Make sure commit messages follow the conventional commits convention:
-  # https://www.conventionalcommits.org
-  commitlint:
-    name: Lint Commit Messages
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          fetch-depth: 0
-      - uses: wagoid/commitlint-github-action@b948419dd99f3fd78a6548d48f94e3df7f6bf3ed # v6.2.1
-
-  test:
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version:
-          - "3.10"
-          - "3.11"
-          - "3.12"
-          # - "3.13"
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macOS-latest
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
-        id: setup-python
-        with:
-          python-version: ${{ matrix.python-version }}
-      - uses: astral-sh/setup-uv@d4b2f3b6ecc6e67c4457f6d3e41ec42d3d0fcb86 # v5
-      - run: uv sync --no-python-downloads
-        shell: bash
-      - run: uv run pytest
-        shell: bash
-      - uses: codecov/codecov-action@0fb7174895f61a3b6b78fc075e0cd60383518dac # v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-  release:
-    needs:
-      - test
-      - lint
-      - commitlint
-
-    runs-on: ubuntu-latest
-    environment: release
-    concurrency: release
+  ci:
+    uses: 34j/.github/.github/workflows/python-package-ci.yml@main
     permissions:
-      id-token: write
       attestations: write
       contents: write
-
+      id-token: write
+  publish:
+    if: needs.ci.outputs.released == 'true'
+    needs: ci
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@v4
         with:
-          fetch-depth: 0
-          ref: ${{ github.sha }}
-
-      - name: Checkout commit for release
-        run: |
-          git checkout -B ${{ github.ref_name }} ${{ github.sha }}
-
-      # Do a dry run of PSR
-      - name: Test release
-        uses: python-semantic-release/python-semantic-release@21ed7fa03e4a17ac49406eff4b60d5ad050fbdc2 # v9
-        if: github.ref_name != 'main'
-        with:
-          root_options: --noop
-          github_token: noop
-
-      # On main branch: actual PSR + upload to PyPI & GitHub
-      - name: Release
-        uses: python-semantic-release/python-semantic-release@21ed7fa03e4a17ac49406eff4b60d5ad050fbdc2 # v9
-        id: release
-        if: github.ref_name == 'main'
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Attest build provenance
-        uses: actions/attest-build-provenance@ef244123eb79f2f7a7e75d99086184180e6d0018 # v1
-        if: steps.release.outputs.released == 'true'
-        with:
-          subject-path: "dist/*"
-
+          name: python-package-dist
+          path: dist
       - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
-        if: steps.release.outputs.released == 'true'
-
-      - name: Publish package distributions to GitHub Releases
-        uses: python-semantic-release/publish-action@52da0d250f109b3b9210046d9dcbc77d037e1c88 # v9
-        if: steps.release.outputs.released == 'true'
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.release.outputs.tag }}
+        uses: pypa/gh-action-pypi-publish@v1.14.0

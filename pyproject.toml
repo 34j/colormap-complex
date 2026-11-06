@@ -1,33 +1,31 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = [ "setuptools" ]
+requires = [ "setuptools>=77.0.3" ]
 
 [project]
 name = "colormap-complex"
 version = "0.2.0"
 description = "Complex / 2d colormap / Domain coloring for matplotlib etc."
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 authors = [
   { name = "34j", email = "34j.95a2p@simplelogin.com" },
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 classifiers = [
   "Development Status :: 2 - Pre-Alpha",
   "Intended Audience :: Developers",
   "Natural Language :: English",
   "Operating System :: OS Independent",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Software Development :: Libraries",
 ]
-
 dependencies = [
-    "colour-science>=0.4.4",
-    "pytest-xdist>=3.6.1",
+  "colour-science>=0.4.4",
+  "pytest-xdist>=3.6.1",
 ]
 urls."Bug Tracker" = "https://github.com/34j/colormap-complex/issues"
 urls.Changelog = "https://github.com/34j/colormap-complex/blob/main/CHANGELOG.md"
@@ -36,81 +34,33 @@ urls.repository = "https://github.com/34j/colormap-complex"
 
 [dependency-groups]
 dev = [
-  "pytest>=8,<9",
-  "pytest-cov>=6,<7",
+  "coverage",
   "matplotlib>=3.10.1",
-  "scipy>=1.13.1",
+  "packaging-34j[test]",
+  "pytest",
+  "pytest-cov",
   "python-slugify>=8.0.4",
+  "scipy>=1.13.1",
+  "ty",
 ]
 docs = [
-  "furo>=2023.5.20; python_version>='3.11'",
-  "myst-parser>=0.16; python_version>='3.11'",
-  "sphinx>=4; python_version>='3.11'",
-  "sphinx-autobuild>=2024,<2025; python_version>='3.11'",
+  "packaging-34j[docs]",
 ]
 
-[tool.setuptools.packages.find]
-where = ["src"]
-
-[tool.setuptools.package-data]
-colormap_complex = ["**/*.npy"]
+[tool.setuptools]
+package-data.colormap_complex = [ "**/*.npy" ]
+packages.find.where = [ "src" ]
 
 [tool.ruff]
-line-length = 100
-lint.select = [
-  "B",   # flake8-bugbear
-  "D",   # flake8-docstrings
-  "C4",  # flake8-comprehensions
-  "S",   # flake8-bandit
-  "F",   # pyflake
-  "E",   # pycodestyle
-  "W",   # pycodestyle
-  "UP",  # pyupgrade
-  "I",   # isort
-  "RUF", # ruff specific
-]
-lint.ignore = [
-  "D203", # 1 blank line required before class docstring
-  "D212", # Multi-line docstring summary should start at the first line
-  "D100", # Missing docstring in public module
-  "D104", # Missing docstring in public package
-  "D107", # Missing docstring in `__init__`
-  "D401", # First line of docstring should be in imperative mood
-]
-lint.per-file-ignores."conftest.py" = [ "D100" ]
-lint.per-file-ignores."docs/conf.py" = [ "D100" ]
-lint.per-file-ignores."setup.py" = [ "D100" ]
-lint.per-file-ignores."tests/**/*" = [
-  "D100",
-  "D101",
-  "D102",
-  "D103",
-  "D104",
-  "S101",
-]
-lint.isort.known-first-party = [ "colormap_complex", "tests" ]
+extend = ".venv/ruff.toml"
+format.exclude = [ "docs/conf.py" ]
+lint.per-file-ignores."docs/conf.py" = [ "A001", "D401" ]
+lint.per-file-ignores."src/colormap_complex/_main.py" = [ "A002", "C901", "DOC501", "PLR6201", "UP047" ]
+lint.per-file-ignores."src/colormap_complex/matplotlib.py" = [ "N803", "TC001" ]
+lint.per-file-ignores."tests/**/*" = [ "A001", "A002", "PLW0108", "PT006" ]
 
-[tool.pytest.ini_options]
-addopts = """\
-    -v
-    -Wdefault
-    --cov=colormap_complex
-    --cov-report=term
-    --cov-report=xml
-    """
-pythonpath = [ "src" ]
-
-[tool.coverage.run]
-branch = true
-
-[tool.coverage.report]
-exclude_lines = [
-  "pragma: no cover",
-  "@overload",
-  "if TYPE_CHECKING",
-  "raise NotImplementedError",
-  'if __name__ == "__main__":',
-]
+[tool.pyproject-fmt]
+max_supported_python = "3.14"
 
 [tool.mypy]
 check_untyped_defs = true
@@ -123,17 +73,33 @@ show_error_codes = true
 warn_unreachable = true
 warn_unused_ignores = true
 exclude = [
-  'docs/.*',
-  'setup.py',
+  "docs/.*",
+  "setup.py",
 ]
+overrides = [ { module = "tests.*", allow_untyped_defs = true }, { module = "docs.*", ignore_errors = true } ]
 
-[[tool.mypy.overrides]]
-module = "tests.*"
-allow_untyped_defs = true
+[tool.ty]
+terminal.error-on-warning = true
 
-[[tool.mypy.overrides]]
-module = "docs.*"
-ignore_errors = true
+[tool.pytest]
+ini_options.addopts = """\
+    -v
+    -Wdefault
+    --cov=colormap_complex
+    --cov-report=term
+    --cov-report=xml
+    """
+ini_options.pythonpath = [ "src" ]
+
+[tool.coverage]
+run.branch = true
+report.exclude_lines = [
+  "@overload",
+  'if __name__ == "__main__":',
+  "if TYPE_CHECKING",
+  "pragma: no cover",
+  "raise NotImplementedError",
+]
 
 [tool.semantic_release]
 version_toml = [ "pyproject.toml:project.version" ]
@@ -141,31 +107,24 @@ version_variables = [
   "src/colormap_complex/__init__.py:__version__",
   "docs/conf.py:release",
 ]
+allow_zero_version = true
 build_command = """
 pip install uv
 uv lock
 git add uv.lock
 uv build
 """
-
-[tool.semantic_release.changelog]
-exclude_commit_patterns = [
-  '''chore(?:\([^)]*?\))?: .+''',
-  '''ci(?:\([^)]*?\))?: .+''',
-  '''refactor(?:\([^)]*?\))?: .+''',
-  '''style(?:\([^)]*?\))?: .+''',
-  '''test(?:\([^)]*?\))?: .+''',
-  '''build\((?!deps\): .+)''',
-  '''Merged? .*''',
-  '''Initial [Cc]ommit.*''', # codespell:ignore
+branches.main.match = "main"
+branches.noop.match = "(?!main$)"
+branches.noop.prerelease = true
+changelog.exclude_commit_patterns = [
+  "chore(?:\\([^)]*?\\))?: .+",
+  "ci(?:\\([^)]*?\\))?: .+",
+  "refactor(?:\\([^)]*?\\))?: .+",
+  "style(?:\\([^)]*?\\))?: .+",
+  "test(?:\\([^)]*?\\))?: .+",
+  "build\\((?!deps\\): .+)",
+  "Merged? .*",
+  "Initial [Cc]ommit.*",         # codespell:ignore
 ]
-
-[tool.semantic_release.changelog.environment]
-keep_trailing_newline = true
-
-[tool.semantic_release.branches.main]
-match = "main"
-
-[tool.semantic_release.branches.noop]
-match = "(?!main$)"
-prerelease = true
+changelog.environment.keep_trailing_newline = true

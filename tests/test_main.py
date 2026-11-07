@@ -1,7 +1,7 @@
 from collections.abc import Callable
 from os import environ
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -62,6 +62,16 @@ def test_colormap_all() -> None:
         fig.delaxes(ax[i])
     fig.savefig(CACHE_PATH / "colormap-all.jpg")
     plt.close(fig)
+
+
+def test_colormap_unhandled_type() -> None:
+    unhandled_type = cast("ColormapType", "unhandled")
+    ALL_COLORMAPS.append(unhandled_type)
+    try:
+        with pytest.raises(AssertionError):
+            colormap(type=unhandled_type)(np.array([0.0]), np.array([0.0]))
+    finally:
+        ALL_COLORMAPS.pop()
 
 
 @pytest.mark.skipif(CI, reason="Slow")

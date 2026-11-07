@@ -82,3 +82,26 @@ report.exclude_lines = [
   "pragma: no cover",
   "raise NotImplementedError",
 ]
+
+[tool.semantic_release]
+version_toml = [ "pyproject.toml:project.version" ]
+build_command = """
+pip install uv
+uv lock
+git add uv.lock
+uv build
+"""
+branches.main.match = "main"
+branches.noop.match = "(?!main$)"
+branches.noop.prerelease = true
+changelog.exclude_commit_patterns = [
+  "chore(?:\\([^)]*?\\))?: .+",
+  "ci(?:\\([^)]*?\\))?: .+",
+  "refactor(?:\\([^)]*?\\))?: .+",
+  "style(?:\\([^)]*?\\))?: .+",
+  "test(?:\\([^)]*?\\))?: .+",
+  "build\\((?!deps\\): .+)",
+  "Merged? .*",
+  "Initial [Cc]ommit.*",         # codespell:ignore
+]
+changelog.environment.keep_trailing_newline = true

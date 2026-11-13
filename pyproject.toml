@@ -22,7 +22,7 @@ classifiers = [
   "Topic :: Software Development :: Libraries",
 ]
 dependencies = [
-  "colour-science>=0.4.4",
+  "colour-science>=0.4.7",
   "pytest-xdist>=3.6.1",
 ]
 urls."Bug Tracker" = "https://github.com/34j/colormap-complex/issues"
